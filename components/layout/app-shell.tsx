@@ -1,10 +1,17 @@
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 import Link from "next/link";
+import type { Route } from "next";
 import { Home, ListChecks, Salad, Settings, Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const navItems = [
+type NavItem = {
+  href: Route;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+};
+
+const navItems: NavItem[] = [
   { href: "/app", label: "Dashboard", icon: Home },
   { href: "/app/check-in", label: "Check-in", icon: ListChecks },
   { href: "/app/plan", label: "Piano", icon: Salad },
