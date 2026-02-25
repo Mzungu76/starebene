@@ -1,19 +1,20 @@
-ENV richieste (.env.example)
+Obbligatorie
 
-DATABASE_URL=
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB?sslmode=require"
 
-NEXTAUTH_URL=
+NEXTAUTH_URL="http://localhost:3000
+"
 
-NEXTAUTH_SECRET=
+NEXTAUTH_SECRET="strong-random-secret"
 
-EMAIL_SERVER= (Resend/SMTP)
+OPENAI_API_KEY="..."
 
-EMAIL_FROM=
+CRON_SECRET="strong-random-secret"
 
-OPENAI_API_KEY=
+DEFAULT_TIMEZONE="Europe/Rome"
 
-BLOB_READ_WRITE_TOKEN= (opzionale)
+Opzionali
 
-CRON_SECRET=
+FEATURE_PHOTOS="false" (o true)
 
-DEFAULT_TIMEZONE=Europe/Rome
+MAX_PHOTO_MB="2"
