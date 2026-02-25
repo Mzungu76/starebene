@@ -2,9 +2,18 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import type { Route } from "next";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+
+const ALLOWED_NEXT_ROUTES: Route[] = ["/app", "/app/check-in", "/app/plan", "/app/today", "/app/settings"];
+
+function resolveNextRoute(nextValue: string | null): Route {
+  if (!nextValue) return "/app";
+
+  return ALLOWED_NEXT_ROUTES.find((route) => route === nextValue) ?? "/app";
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -32,7 +41,8 @@ export default function LoginPage() {
       return;
     }
 
-    router.push(params.get("next") || "/app");
+    const destination = resolveNextRoute(params.get("next"));
+    router.push(destination);
     router.refresh();
   }
 
