@@ -10,7 +10,7 @@ export default function LandingPage() {
         <p className="text-sm font-semibold uppercase tracking-wide text-primary">Milestone 1</p>
         <h1 className="text-3xl font-bold md:text-5xl">Stare Bene: dieta + allenamento, senza perdere tempo.</h1>
         <p className="max-w-2xl text-muted-foreground">
-          Onboarding guidato, piano settimanale pasti e piano trimestrale allenamento in un'app
+          Onboarding guidato, piano settimanale pasti e piano trimestrale allenamento in un&apos;app
           responsive pensata per desktop e mobile.
         </p>
       </div>
