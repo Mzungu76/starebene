@@ -1,2 +1,1 @@
-# starebene
-App per magiare sano e allenarsi
+Obiettivo: web app (desktop + mobile) per dieta + allenamento con poco tempo disponibile. Flusso: registrazione → check-in completo → generazione piano dieta settimanale (Italia, piatti rapidi) + piano allenamento trimestrale → tracking minimo sforzo → modifiche manuali + rigenerazione controllata → rinnovo automatico alla scadenza.
