@@ -1,0 +1,13 @@
+Principi prodotto (vincoli)
+
+“Minimo sforzo”: tracking rapidissimo (check giornaliero 30–60 sec)
+
+Pasti semplici, ingredienti reperibili in Italia, ricette “veloci” (max 15–20 min, molte opzioni “assemblate”)
+
+Allenamenti brevi, realistici, progressivi (3 mesi), adattabili a sedentarietà e tempo ridotto
+
+Piani sempre modificabili dall’utente: edit manuale + “rigenera questa parte”
+
+Dieta varia settimana per settimana (anche mantenendo preferenze e vincoli)
+
+UX bella, tecnica, pulita, con dashboard chiara e mobile-first

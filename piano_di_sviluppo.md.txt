@@ -1,0 +1,277 @@
+MILESTONE 1 — Setup, Auth, Layout, Design System
+Deliverable
+
+Next.js app router, Tailwind, shadcn/ui installati
+
+Layout responsivo: sidebar desktop + bottom nav mobile
+
+Pagine base:
+
+/ (landing)
+
+/login
+
+/app (dashboard)
+
+/app/check-in (wizard)
+
+/app/plan (dieta + allenamento)
+
+/app/today (check giornaliero)
+
+/app/settings
+
+Auth email magic link funzionante
+
+Protezione route /app/*
+
+Criteri accettazione
+
+Deploy su Vercel funzionante
+
+Login via email, sessione persistente
+
+UI coerente desktop/mobile
+
+MILESTONE 2 — Database & Modelli (Prisma)
+Modelli minimi (Prisma)
+
+User (id, email, name, createdAt)
+
+Profile (userId, sesso, dataNascita, altezzaCm, pesoKg, obiettivo, livelloAttivita, lavoroSedentario bool, oreSonno, stress, passiStimati, patologieNote, farmaciNote, allergie, intolleranze, preferenzeCibo, cibiOdiati, budgetTempoCucina, attrezzaturaCucina, giorniAllenamentoPreferiti, tempoAllenamentoMin, luogoAllenamento [casa/palestra], attrezzaturaAllenamento, infortuni, note)
+
+CheckIn (userId, date, pesoKg, girovitaCm, aderenzaDieta 1-5, aderenzaAllenamento 1-5, fame 1-5, energia 1-5, sonnoOre, note)
+
+MealPlanWeek (userId, weekStartDate, version, goalCalories opzionale, notes, createdBy [ai/manual], createdAt)
+
+MealPlanDay (weekId, date, meals json) // meals: colazione/pranzo/cena/spuntini con ricetta rapida + ingredienti
+
+TrainingPlanBlock (userId, startDate, endDate, version, createdBy, createdAt) // trimestre
+
+TrainingPlanWeek (blockId, weekNumber, sessions json) // schede e progressioni
+
+TrainingLog (userId, date, sessionDone bool, rpe 1-10, note)
+
+RegenerationLog (userId, type [meal/week/training/block], input, output, createdAt) per tracciabilità AI
+
+Note tecniche
+
+meals e sessions in JSON con schema validato (zod) lato app
+
+Indici su userId e date
+
+Criteri accettazione
+
+Migrazioni ok
+
+CRUD base via server actions / route handlers
+
+Seed facoltativo
+
+MILESTONE 3 — Check-in Wizard (raccolta dati “una volta fatta bene”)
+UX
+
+Wizard a step (6–10 schermate) con progress bar e salvataggio automatico:
+
+Dati base (età/sesso/altezza/peso)
+
+Obiettivo (dimagrire/ricomposizione/mantenimento) + target realistico
+
+Vincoli alimentari (allergie/intolleranze, preferenze, cibi da evitare)
+
+Tempo cucina e strumenti (max tempo pasti, microonde, friggitrice ad aria, ecc.)
+
+Routine lavoro (7–18:30), orari pasti possibili, fame serale, acidità ecc. (campo note)
+
+Allenamento: giorni disponibili, durata (es. 20–35 min), casa/palestra, attrezzatura, infortuni
+
+Stile di vita: sonno, stress, passi stimati (sedentario)
+
+Conferma riepilogo
+
+Criteri accettazione
+
+Profilo completo salvato in DB
+
+Possibilità di modificare profilo in /settings
+
+L’app non genera piani se manca il check-in
+
+MILESTONE 4 — Generazione Piano Dieta Settimanale (AI + regole)
+Funzione “GenerateMealPlanWeek(profile, weekStartDate, constraints)”
+Regole
+
+Ingredienti italiani reperibili: supermercato standard
+
+Preparazione rapida: indicare tempo stimato; privilegiare piatti “assemblati”
+
+Output strutturato: 7 giorni, per ciascun giorno: colazione/pranzo/cena + 1–2 spuntini (se richiesto)
+
+Per ogni pasto:
+
+nome piatto
+
+ingredienti (lista)
+
+istruzioni max 5–7 righe
+
+tempo preparazione
+
+variante “emergenza” (es. tonno + legumi + verdure pronte)
+
+Variazione settimanale: la settimana successiva non deve ripetere identico schema
+
+Consentire “Sostituisci pasto” e “Rigenera solo martedì pranzo”
+
+Implementazione
+
+Prompting con JSON schema rigoroso (zod)
+
+Salvare in MealPlanWeek/Day
+
+UI: vista calendario settimanale + lista spesa auto-generata
+
+Lista spesa: aggrega ingredienti, raggruppa per reparto (ortofrutta, carne/pesce, dispensa, latticini, surgelati)
+
+Criteri accettazione
+
+Pulsante “Genera settimana” crea piano completo
+
+Pulsante “Rigenera elemento” modifica solo parte richiesta
+
+Lista spesa coerente col piano
+
+MILESTONE 5 — Piano Allenamento Trimestrale (AI + progressione)
+Funzione “GenerateTrainingPlanBlock(profile, startDate, 12 weeks)”
+Regole
+
+Sedentario + poco tempo: 3 allenamenti/settimana da 20–35 min (default), adattabile
+
+Progressione su 3 mesocicli (4+4+4 settimane): adattamento → costruzione → consolidamento
+
+Sessioni casa (senza attrezzi) e opzione manubri/elastici
+
+Ogni sessione:
+
+riscaldamento 4–6 min
+
+circuito principale 12–20 min
+
+defaticamento 3–5 min
+
+RPE target, recuperi, alternative se dolore
+
+“Zero fuffa”: esercizi comuni, spiegazioni brevi
+
+Possibilità di cambiare giorni/tempo e rigenerare solo una settimana
+
+UI
+
+Vista “Settimana corrente” + dettaglio sessione
+
+Pulsante “Segna fatto” con RPE e note rapide
+
+Criteri accettazione
+
+Generazione blocco 12 settimane salvato
+
+Log allenamenti con completamento
+
+Modifica manuale di una sessione
+
+MILESTONE 6 — Oggi (daily flow) + abitudini sane
+Schermata /app/today
+
+Checklist rapidissima:
+
+Ho seguito piano pasti? (slider 1–5)
+
+Ho fatto allenamento? (si/no)
+
+Energia (1–5), Fame (1–5), Sonno ore
+
+Nota veloce
+
+Reminder soft: suggerimenti pratici (non motivazionali), es. “stasera cena emergenza in 10 minuti”
+
+Fotopasto opzionale: carica foto, l’app salva e permette nota (senza obbligo calorie)
+
+Criteri accettazione
+
+In 30 secondi posso registrare la giornata
+
+Dashboard mostra trend settimana (aderenza, energia, allenamenti)
+
+MILESTONE 7 — Rinnovo e Variazione Automatica (Cron)
+
+Cron settimanale (es. domenica 18:00) genera la settimana successiva se:
+
+piano esistente sta per finire
+
+utente ha completato check-in
+
+Cron trimestrale: quando block sta per scadere, propone “Rigenera trimestre”
+
+Sicurezza: CRON_SECRET
+
+Log rigenerazioni
+
+Criteri accettazione
+
+Endpoint protetto /api/cron/weekly-meal-plan
+
+Nessun doppione: idempotenza per weekStartDate
+
+MILESTONE 8 — Qualità, Validazione, Error Handling
+
+zod su tutti gli output AI
+
+retry controllato (max 2)
+
+fallback: se AI fallisce, mostra messaggio e salva bozza
+
+Test minimi (unit su parser JSON, e2e smoke su login + generate)
+
+Performance: caching server actions dove sensato
+
+SPECIFICA OUTPUT AI (schema JSON)
+
+Meal plan week JSON con campi obbligatori e stringhe corte
+
+Training plan block JSON con settimane e sessioni
+
+Niente markdown in output AI: solo JSON
+
+UI/UX requirements
+
+Mobile-first, tap target grandi, zero schermate dense inutili
+
+Dashboard: “Settimana dieta”, “Allenamenti”, “Trend”
+
+Tema: tecnico, pulito, leggermente “fitness” ma non aggressivo
+
+Componenti: cards, tabs, calendar-like week selector, bottom nav mobile
+
+README richiesto
+
+Setup locale
+
+Migrazioni Prisma
+
+Config Resend
+
+Deploy Vercel
+
+Setup cron jobs
+
+Cosa mi aspetto nel repo finale
+
+App funzionante end-to-end
+
+Seed demo (facoltativo)
+
+.env.example completo
+
+Nessuna chiave hardcoded
+
+Lint/build pass

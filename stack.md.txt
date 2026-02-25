@@ -1,0 +1,17 @@
+Stack obbligatorio
+
+Next.js (App Router) + TypeScript
+
+Tailwind CSS + shadcn/ui
+
+PostgreSQL (Neon/Supabase) + Prisma
+
+NextAuth (Email magic link) oppure Auth.js
+
+Vercel deploy
+
+Vercel Cron per rinnovi piani
+
+OpenAI API per generazione piani (dieta/allenamento) e per variazioni settimanali
+
+Storage opzionale: Vercel Blob per foto pasti

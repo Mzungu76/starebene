@@ -1,0 +1,19 @@
+ENV richieste (.env.example)
+
+DATABASE_URL=
+
+NEXTAUTH_URL=
+
+NEXTAUTH_SECRET=
+
+EMAIL_SERVER= (Resend/SMTP)
+
+EMAIL_FROM=
+
+OPENAI_API_KEY=
+
+BLOB_READ_WRITE_TOKEN= (opzionale)
+
+CRON_SECRET=
+
+DEFAULT_TIMEZONE=Europe/Rome

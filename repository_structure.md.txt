@@ -1,0 +1,13 @@
+Repository structure (minima)
+
+/app (routes)
+
+/components (ui)
+
+/lib (openai, auth, validators)
+
+/prisma (schema)
+
+/scripts (cron helpers)
+
+README.md (setup, env, deploy
