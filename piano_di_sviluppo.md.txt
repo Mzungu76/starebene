@@ -1,164 +1,611 @@
-MILESTONE 1 — Setup + Auth (senza email) + Layout
+MILESTONE 1 — Bootstrap repository, UI base, autenticazione (email+password), protezione route
 
-Auth: Credentials (email + password), nessun magic link
+Obiettivo
+Creare un’app Next.js completa di autenticazione con credenziali (email+password), sessioni, layout responsive desktop/mobile e route protette. Nessun invio email, nessun provider esterno.
 
-Password hash: argon2 (preferibile) o bcrypt
+Task tecnici
 
-Sessione: cookie httpOnly gestita da Auth.js/NextAuth
+Setup progetto
 
-Reset password: senza email
+Next.js (App Router) + TypeScript
 
-Genera “recovery codes” (10 codici monouso) al primo setup account
+Tailwind CSS
 
-Pagina /app/settings per rigenerarli (richiede password)
+shadcn/ui installato e configurato
 
-Deliverable
+ESLint + TypeScript strict
 
-Next.js App Router + TS + Tailwind + shadcn/ui
+Struttura cartelle:
 
-Layout responsivo: sidebar desktop + bottom nav mobile
+app/
 
-Pagine:
+components/
 
-/login (email + password)
+lib/
 
-/register (email + password + conferma)
+prisma/
 
-/app (dashboard)
+scripts/
 
-/app/check-in
+docs/ (solo file statici)
 
-/app/plan
+README.md
 
-/app/today
+.env.example
 
-/app/settings (profilo + security)
+Layout e navigazione responsive
 
-Route /app/* protette
+Desktop: sidebar sinistra + topbar
 
-Criteri accettazione
+Mobile: bottom navigation (Dashboard, Oggi, Piani, Check-in, Impostazioni)
 
-Registrazione e login funzionanti
+Componenti riusabili:
 
-Sessione persistente
+AppShell
+
+Sidebar
+
+BottomNav
+
+PageHeader
+
+Card/StatsCard
+
+Tema pulito, tecnico, coerente, leggibile su mobile.
+
+Autenticazione Credentials
+
+Implementare Auth.js/NextAuth con Credentials Provider:
+
+Registrazione: email + password + conferma password
+
+Login: email + password
 
 Logout
 
-Recovery codes generabili e verificabili (anche solo API + UI minima)
+Password hashing:
 
-MILESTONE 2 — Database self-host + Prisma + Migrazioni
-Cosa cambia
+argon2 (preferibile) o bcrypt (accettabile)
 
-Database: PostgreSQL su tuo VPS/server (non Neon/Supabase)
+Validazioni:
 
-Prisma come ORM
+email valida
 
-Tabelle auth incluse (adapter Prisma)
+password min 10 caratteri
 
-Modelli minimi (restano simili)
+rate limiting base su login (anche semplice, per IP o per email, con cooldown in DB)
+
+Sessione:
+
+cookie httpOnly
+
+route /app/* accessibile solo con sessione valida
+
+UI:
+
+/login
+
+/register
+
+redirect a /app dopo login
+
+redirect a /login se non autenticato
+
+Recovery codes (reset senza email)
+
+Alla prima registrazione, generare 10 recovery codes monouso:
+
+mostrarli una sola volta in una schermata dedicata “Salva questi codici”
+
+salvarli in DB come hash (mai in chiaro)
+
+In /app/settings/security:
+
+rigenerazione recovery codes (richiede password)
+
+Flusso “recupero”:
+
+pagina /recover: email + recovery code + nuova password
+
+verifica hash, marca code come usato, aggiorna password hash
+
+Criteri di accettazione
+
+Registrazione/login/logout funzionanti in locale e su Vercel
+
+/app bloccato senza login
+
+Recovery codes generati, visualizzati una sola volta e funzionanti per recupero password
+
+UI corretta su mobile e desktop
+
+Build e typecheck passano
+
+MILESTONE 2 — Database PostgreSQL self-host + Prisma + schema dati core
+
+Obiettivo
+Definire lo schema DB completo per profilo, check-in, piani dieta e allenamento, log e recovery codes. Configurare Prisma e migrazioni.
+
+Task tecnici
+
+Prisma setup
+
+Configurare Prisma con DATABASE_URL
+
+Aggiungere comandi:
+
+prisma migrate
+
+prisma studio
+
+prisma generate
+
+Adapter Prisma per Auth.js/NextAuth (o gestione user custom coerente con auth scelta)
+
+Modelli Prisma (minimo richiesto)
 
 User
 
+id, email (unique), passwordHash, createdAt, updatedAt
+
 Profile
+
+userId (unique)
+
+sesso, dataNascita
+
+altezzaCm, pesoKg
+
+obiettivo (enum: dimagrimento, mantenimento, ricomposizione)
+
+livelloAttivita (enum)
+
+lavoroSedentario (bool default true)
+
+oreSonnoMedie, stress (1–5)
+
+passiStimati (int)
+
+allergie, intolleranze, preferenzeCibo, cibiOdiati (text/json)
+
+tempoCucinaMaxMin (int)
+
+attrezzaturaCucina (json)
+
+giorniAllenamentoPreferiti (json)
+
+tempoAllenamentoMin (int)
+
+luogoAllenamento (enum: casa, palestra)
+
+attrezzaturaAllenamento (json)
+
+infortuniNote (text)
+
+note (text)
 
 CheckIn
 
-MealPlanWeek, MealPlanDay
+id, userId, date (unique per user+date)
 
-TrainingPlanBlock, TrainingPlanWeek
+pesoKg, girovitaCm
+
+aderenzaDieta (1–5), aderenzaAllenamento (1–5)
+
+fame (1–5), energia (1–5)
+
+sonnoOre
+
+note
+
+MealPlanWeek
+
+id, userId, weekStartDate, version, createdBy (enum: ai, manual), createdAt
+
+goalCalories opzionale
+
+notes
+
+unique (userId + weekStartDate + version)
+
+MealPlanDay
+
+id, weekId, date
+
+mealsJson (json) con colazione/pranzo/cena/spuntini
+
+TrainingPlanBlock
+
+id, userId, startDate, endDate, version, createdBy, createdAt
+
+TrainingPlanWeek
+
+id, blockId, weekNumber
+
+sessionsJson (json)
 
 TrainingLog
 
+id, userId, date (unique per user+date)
+
+sessionDone bool, rpe (1–10), note
+
 RegenerationLog
 
-(Security) RecoveryCode (userId, codeHash, usedAt)
+id, userId, type (enum), inputJson, outputJson, createdAt
 
-Criteri accettazione
+RecoveryCode
 
-prisma migrate ok
+id, userId
 
-CRUD base Profile + CheckIn
+codeHash
 
-Adapter auth su DB ok
+usedAt nullable
 
-MILESTONE 3 — Check-in Wizard
-Invariata come logica, ma:
+createdAt
 
-il wizard parte dopo login
+index (userId, usedAt)
 
-salva su Profile
+Seed minimo (facoltativo)
 
-blocca generazione piani se Profile incompleto
+Script seed che crea utente demo + profile demo
 
-Criteri accettazione
+Criteri di accettazione
 
-Wizard a step con autosave
+Migrazioni ok
 
-/settings modifica profilo
+Prisma studio mostra tabelle
 
-MILESTONE 4 — Piano Dieta Settimanale (AI) + Lista Spesa
-Invariata, con questi vincoli:
+Vincoli univoci su date/weekly plan corretti
 
-Output AI in JSON validato (zod)
+Nessun dato sensibile in chiaro (password e recovery code solo hash)
 
-Piano sempre modificabile
+MILESTONE 3 — Check-in wizard completo + gating funzionalità
 
-“Rigenera solo X” (giorno/pasto) con log in RegenerationLog
+Obiettivo
+Creare il wizard di check-in che raccoglie i dati e impedisce la generazione piani finché il profilo non è completo.
 
-Opzione foto (scegli tu)
-A) Disabilitata: solo aderenza + note
-B) Abilitata senza servizi esterni: foto salvata in DB (bytea) con limite (es. 1–2 MB) + compressione client
+Task tecnici
 
-Criteri accettazione
+Wizard /app/check-in
 
-Genera settimana
+Step con progress bar, autosave, resume se abbandonato
 
-Rigenera singolo pasto
+Step minimi:
 
-Lista spesa aggregata
+Dati base: sesso, data nascita, altezza, peso
 
-MILESTONE 5 — Allenamento Trimestrale (AI) + Log allenamenti
-Invariata, con:
+Obiettivo: dimagrire/mantenere/ricomposizione + note
 
-JSON schema rigoroso
+Vincoli alimentari: allergie/intolleranze + preferenze/cibi odiati
 
-Vista settimana corrente + “segna fatto”
+Tempo e strumenti cucina: tempo max, strumenti disponibili
 
-Modifica manuale sessione
+Routine: lavoro 7–18:30, orari pasti consigliati (campi editabili)
 
-MILESTONE 6 — Today (daily flow) + trend
-Invariata
+Allenamento: giorni disponibili, durata, casa/palestra, attrezzatura
 
-Check giornaliero 30–60 sec
+Limiti fisici: infortuni/fastidi
 
-Dashboard trend (aderenza, energia, allenamenti)
+Riepilogo e conferma
 
-MILESTONE 7 — Rinnovi automatici (Cron Vercel)
-Cosa cambia
+Validazioni lato client+server (zod)
 
-Cron Vercel resta (non è “servizio esterno” extra, è Vercel)
+Settings /app/settings
 
-Nessuna notifica email
+Modifica profilo (gli stessi campi, senza wizard)
 
-Notifica in-app: badge “Nuova settimana pronta” + card dashboard
+Gating
 
-Criteri accettazione
+Se Profile incompleto:
 
-/api/cron/weekly-meal-plan protetta da CRON_SECRET
+/app/plan mostra blocco “Completa check-in”
 
-idempotenza per weekStartDate
+/app/today funziona comunque (solo check-in giornaliero)
 
-rinnovo training block con “call-to-action” in app
+Dashboard mostra “stato” check-in
 
-MILESTONE 8 — Robustezza
-Invariata
+Criteri di accettazione
 
-zod su output AI
+Wizard salva correttamente
+
+Profilo modificabile
+
+Blocco generazione piani se profilo incompleto
+
+MILESTONE 4 — Piano dieta settimanale (AI) + modifica e rigenerazione parziale + lista spesa
+
+Obiettivo
+Generare un piano settimanale con OpenAI, validare JSON, salvarlo, mostrarlo e permettere modifiche manuali e rigenerazioni granulari. Ingredienti italiani e ricette rapide.
+
+Task tecnici
+
+Contratti JSON (zod)
+
+Definire schema MealPlanWeekSchema e MealPlanDaySchema
+
+Output AI deve essere SOLO JSON conforme
+
+Implementare parser + validazione + gestione errori
+
+Generazione settimana
+
+UI: /app/plan/diet con selettore settimana (weekStart)
+
+Pulsante “Genera settimana”
+
+Backend:
+
+costruire prompt con dati Profile + vincoli + weekStart
+
+chiamare OpenAI
+
+validare JSON
+
+salvare in MealPlanWeek + MealPlanDay
+
+registrare RegenerationLog
+
+Rigenerazione parziale
+
+Per ogni giorno e pasto:
+
+“Rigenera questo pasto”
+
+“Sostituisci con alternativa più rapida”
+
+Backend:
+
+inviare contesto (profilo + vincoli + piano attuale)
+
+rigenerare SOLO quella porzione
+
+ricalcolare lista spesa
+
+loggare in RegenerationLog
+
+Modifica manuale
+
+Editor semplice:
+
+cambiare nome piatto, ingredienti, note
+
+salvare come createdBy=manual o patch su JSON
+
+Versionamento:
+
+incrementare version quando rigeneri intere giornate o settimana
+
+patch senza version bump per micro-edit (accettabile)
+
+Lista spesa
+
+Generare lista spesa dalla settimana:
+
+aggrega ingredienti
+
+raggruppa per reparto (ortofrutta, carne/pesce, dispensa, latticini, surgelati, vari)
+
+UI: tab “Lista spesa” esportabile (copia negli appunti)
+
+Criteri di accettazione
+
+Generazione settimana affidabile (con retry max 2)
+
+Rigenerazione singolo pasto senza rompere schema
+
+Modifica manuale persistente
+
+Lista spesa coerente
+
+MILESTONE 5 — Piano allenamento trimestrale (12 settimane) + log allenamenti + modifica
+
+Obiettivo
+Generare un blocco di 12 settimane con progressione, adatto a tempo ridotto e sedentarietà. Mostrare settimane/sessioni e loggare completamenti.
+
+Task tecnici
+
+Contratti JSON (zod)
+
+TrainingPlanBlockSchema con:
+
+settimane 1..12
+
+per ogni settimana: 3 sessioni (default) configurabili
+
+ogni sessione: warmup, main, cooldown, RPE target, recuperi, alternative
+
+Generazione blocco trimestrale
+
+UI: /app/plan/training
+
+Pulsante “Genera trimestre”
+
+Backend:
+
+prompt su Profile
+
+chiamata OpenAI
+
+validazione JSON
+
+salvataggio TrainingPlanBlock + TrainingPlanWeek
+
+log in RegenerationLog
+
+Vista settimana corrente
+
+UI:
+
+“Settimana X” con sessioni
+
+dettaglio sessione con timer opzionale (solo UI)
+
+“Segna fatto” + RPE + nota
+
+Salvataggio TrainingLog
+
+Modifica manuale
+
+Permettere edit di singola sessione (JSON patch)
+
+Permettere “Rigenera settimana 6” o “Rigenera sessione 2 settimana 4”
+
+Criteri di accettazione
+
+Blocco 12 settimane generato e navigabile
+
+Log allenamenti salvato
+
+Rigenerazione parziale funzionante
+
+MILESTONE 6 — Today: check giornaliero rapidissimo + dashboard trend
+
+Obiettivo
+Creare la schermata “Oggi” per registrare in 30–60 secondi l’andamento e mostrare trend utili.
+
+Task tecnici
+
+/app/today
+
+Form rapido:
+
+aderenza dieta (1–5)
+
+allenamento fatto (si/no)
+
+energia (1–5)
+
+fame (1–5)
+
+sonno ore
+
+nota breve
+
+Salva/aggiorna CheckIn per la data odierna
+
+Se allenamento fatto: crea/aggiorna TrainingLog
+
+Dashboard /app
+
+Card:
+
+Piano dieta settimana corrente (stato)
+
+Allenamenti settimana corrente (completati/previsti)
+
+Trend 7/14 giorni:
+
+aderenza dieta
+
+energia media
+
+allenamenti completati
+
+Grafici con libreria leggera (recharts ok)
+
+Criteri di accettazione
+
+Compilazione in 30–60 sec
+
+Trend visibili e coerenti col DB
+
+MILESTONE 7 — Rinnovo automatico piani (Cron Vercel) + notifiche in-app
+
+Obiettivo
+Generare automaticamente la settimana successiva e proporre rinnovo trimestre a scadenza, senza email.
+
+Task tecnici
+
+Endpoint cron protetti
+
+/api/cron/weekly-meal-plan
+
+/api/cron/training-renewal-check
+
+Protezione con header o query CRON_SECRET
+
+Idempotenza:
+
+se esiste già MealPlanWeek per weekStartDate, non rigenerare
+
+Logica weekly diet
+
+Ogni domenica (config Vercel Cron):
+
+calcola weekStartDate successivo
+
+genera piano se manca
+
+salva e logga
+
+Logica training renewal
+
+Se TrainingPlanBlock sta per finire (es. entro 7 giorni):
+
+crea una “notification” in DB (aggiungere tabella Notification)
+
+UI in dashboard mostra badge “Rinnova trimestre”
+
+Notifiche in-app
+
+Tabella Notification:
+
+id, userId, type, title, body, createdAt, readAt
+
+UI: badge in dashboard + pagina /app/notifications
+
+Criteri di accettazione
+
+Cron eseguibile e sicuro
+
+Nessun doppione
+
+Notifiche visibili in app
+
+MILESTONE 8 — Harden: validazioni, error handling, test minimi, performance, sicurezza
+
+Obiettivo
+Rendere l’app robusta e pronta a uso reale.
+
+Task tecnici
+
+AI robustness
+
+zod su ogni risposta AI
 
 retry max 2
 
-fallback UI
+timeout e gestione errori
 
-test minimi
+RegenerationLog completo (input/output)
 
-lint/build pass
+Sicurezza
+
+CSRF e session security (Auth.js standard)
+
+rate limiting su login e su endpoint AI (per user)
+
+sanitizzazione input note
+
+headers base (CSP minima se possibile)
+
+Test minimi
+
+Unit: parser/validator JSON AI
+
+E2E smoke: register → login → check-in → generate diet → generate training
+
+Performance
+
+caching dove utile (server actions)
+
+query indicizzate per date
+
+Criteri di accettazione
+
+Build ok
+
+Test ok
+
+Gestione errori chiara in UI
