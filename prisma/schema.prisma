@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Sesso {
+  maschio
+  femmina
+  altro
+}
+
+enum Obiettivo {
+  dimagrire
+  ricomposizione
+  mantenimento
+}
+
+enum LivelloAttivita {
+  basso
+  medio
+  alto
+}
+
+enum LuogoAllenamento {
+  casa
+  palestra
+}
+
+enum CreatedBy {
+  ai
+  manual
+}
+
+enum RegenerationType {
+  meal
+  week
+  training
+  block
+}
+
+model User {
+  id             String            @id @default(cuid())
+  email          String            @unique
+  name           String?
+  createdAt      DateTime          @default(now())
+
+  profile        Profile?
+  checkIns       CheckIn[]
+  mealPlanWeeks  MealPlanWeek[]
+  trainingBlocks TrainingPlanBlock[]
+  trainingLogs   TrainingLog[]
+  regenerations  RegenerationLog[]
+  recoveryCodes  RecoveryCode[]
+}
+
+model Profile {
+  id                         String            @id @default(cuid())
+  userId                     String            @unique
+  sesso                      Sesso?
+  dataNascita                DateTime?
+  altezzaCm                  Int?
+  pesoKg                     Float?
+  obiettivo                  Obiettivo?
+  livelloAttivita            LivelloAttivita?
+  lavoroSedentario           Boolean           @default(true)
+  oreSonno                   Float?
+  stress                     Int?
+  passiStimati               Int?
+  patologieNote              String?
+  farmaciNote                String?
+  allergie                   String?
+  intolleranze               String?
+  preferenzeCibo             String?
+  cibiOdiati                 String?
+  budgetTempoCucina          String?
+  attrezzaturaCucina         String?
+  giorniAllenamentoPreferiti String?
+  tempoAllenamentoMin        Int?
+  luogoAllenamento           LuogoAllenamento?
+  attrezzaturaAllenamento    String?
+  infortuni                  String?
+  note                       String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CheckIn {
+  id                  String   @id @default(cuid())
+  userId               String
+  date                 DateTime
+  pesoKg               Float?
+  girovitaCm           Float?
+  aderenzaDieta        Int?
+  aderenzaAllenamento  Int?
+  fame                 Int?
+  energia              Int?
+  sonnoOre             Float?
+  note                 String?
+  createdAt            DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@unique([userId, date])
+}
+
+model MealPlanWeek {
+  id             String        @id @default(cuid())
+  userId          String
+  weekStartDate   DateTime
+  version         Int           @default(1)
+  goalCalories    Int?
+  notes           String?
+  createdBy       CreatedBy     @default(ai)
+  createdAt       DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  days MealPlanDay[]
+
+  @@index([userId, weekStartDate])
+  @@unique([userId, weekStartDate, version])
+}
+
+model MealPlanDay {
+  id      String   @id @default(cuid())
+  weekId   String
+  date     DateTime
+  meals    Json
+
+  week MealPlanWeek @relation(fields: [weekId], references: [id], onDelete: Cascade)
+
+  @@index([date])
+}
+
+model TrainingPlanBlock {
+  id         String             @id @default(cuid())
+  userId      String
+  startDate   DateTime
+  endDate     DateTime
+  version     Int                @default(1)
+  createdBy   CreatedBy           @default(ai)
+  createdAt   DateTime           @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeks TrainingPlanWeek[]
+
+  @@index([userId, startDate])
+  @@unique([userId, startDate, version])
+}
+
+model TrainingPlanWeek {
+  id         String   @id @default(cuid())
+  blockId     String
+  weekNumber  Int
+  sessions    Json
+
+  block TrainingPlanBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+
+  @@index([weekNumber])
+  @@unique([blockId, weekNumber])
+}
+
+model TrainingLog {
+  id          String   @id @default(cuid())
+  userId       String
+  date         DateTime
+  sessionDone  Boolean
+  rpe          Int?
+  note         String?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model RegenerationLog {
+  id         String            @id @default(cuid())
+  userId      String
+  type        RegenerationType
+  input       Json
+  output      Json
+  createdAt   DateTime          @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model RecoveryCode {
+  id        String   @id @default(cuid())
+  userId    String
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, usedAt])
+  @@unique([userId, codeHash])
+}
