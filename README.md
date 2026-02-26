@@ -1,6 +1,6 @@
 # Stare Bene
 
-Milestone 1 implementato con Next.js App Router + Tailwind + componenti shadcn/ui base, auth con email/password e layout responsive.
+Milestone 1 + storage locale con IndexedDB (nessun Prisma/PostgreSQL) per utilizzo personale.
 
 ## Setup locale
 
@@ -21,7 +21,7 @@ Milestone 1 implementato con Next.js App Router + Tailwind + componenti shadcn/u
    npm run dev
    ```
 
-## Rotte milestone 1
+## Rotte principali
 
 - `/` landing
 - `/login` login con password
@@ -31,7 +31,11 @@ Milestone 1 implementato con Next.js App Router + Tailwind + componenti shadcn/u
 - `/app/today`
 - `/app/settings`
 
-## Note deploy Vercel
+## Storage locale (IndexedDB)
 
-- Impostare tutte le variabili in `.env.example`.
-- Auth routes disponibili su `/api/auth/*`.
+In `/app/settings` trovi il pannello backup:
+
+- **Esporta backup**: scarica un file JSON con i dati locali
+- **Importa backup**: ricarica un file JSON in IndexedDB
+
+Questo approccio è pensato per uso personale, senza DB esterno.
