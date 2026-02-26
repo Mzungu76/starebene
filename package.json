@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:generate": "prisma generate",
+    "db:seed": "node scripts/seed.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -15,7 +19,9 @@
     "next": "^15.2.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "tailwind-merge": "^3.0.1"
+    "tailwind-merge": "^3.0.1",
+    "@prisma/client": "^6.4.1",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
@@ -25,6 +31,7 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
     "@types/node": "^22.13.10",
-    "@types/react": "^19.0.10"
+    "@types/react": "^19.0.10",
+    "prisma": "^6.4.1"
   }
 }
