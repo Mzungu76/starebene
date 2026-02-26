@@ -1,11 +1,11 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import type { Route } from "next";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const ALLOWED_NEXT_ROUTES: Route[] = ["/app", "/app/check-in", "/app/plan", "/app/today", "/app/settings"];
 
@@ -48,14 +48,16 @@ export function LoginForm() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md items-center px-4">
-      <Card className="w-full space-y-4">
-        <div>
+      <Card className="w-full space-y-5">
+        <div className="space-y-1">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Accesso</p>
           <h1 className="text-2xl font-semibold">Login con password</h1>
-          <p className="text-sm text-muted-foreground">Inserisci email e password per accedere.</p>
+          <p className="text-sm text-muted-foreground">Inserisci le credenziali per entrare nella dashboard.</p>
         </div>
+
         <form className="space-y-3" onSubmit={onSubmit}>
           <input
-            className="h-10 w-full rounded-md border border-input px-3"
+            className="h-11 w-full rounded-lg border border-input bg-background/30 px-3"
             type="email"
             placeholder="nome@email.it"
             value={email}
@@ -63,7 +65,7 @@ export function LoginForm() {
             required
           />
           <input
-            className="h-10 w-full rounded-md border border-input px-3"
+            className="h-11 w-full rounded-lg border border-input bg-background/30 px-3"
             type="password"
             placeholder="Password"
             value={password}
@@ -74,7 +76,8 @@ export function LoginForm() {
             {loading ? "Accesso..." : "Accedi"}
           </Button>
         </form>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+        {error ? <p className="text-sm text-red-400">{error}</p> : null}
       </Card>
     </main>
   );
